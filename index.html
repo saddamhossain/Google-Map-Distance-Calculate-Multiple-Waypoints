@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<!-- 
+	Developer Name: Md. Saddam Hossain--
+	Date: 13/8/2015 
+-->  
+	<title>Google Map Distance Calculate</title>
+	<meta name="keywords" content="Google Maps directions for multiple waypoints, C#, .NET, ASP.NET, maps, development,Md. Saddam Hossain" />
+	<meta name="description" content="Use this page to get directions for routes with multiple waypoints using Google Maps, includes route optimisation" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<link rel="stylesheet" type="text/css" href="Content/site.min.css?v=2" />
+	<script src="js/SiteBundle.min.js?v=7" type="text/javascript"></script>
+	 <!-- <script src="js/waypoints.js" type="text/javascript"></script> -->
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width" />
+
+	<script>
+		  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		  ga('create', 'UA-126386-2', 'doogal.co.uk');
+		  ga('send', 'pageview');
+	</script>
+	
+<!-- 	  <script>
+		if (document.addEventListener) {
+		  document.addEventListener('DOMContentLoaded', function(event) {
+			cookieChoices.showCookieConsentBar('This site uses cookies',
+			  'close message', 'learn more', 'cookies.php');
+		  });
+		} else {
+		  document.attachEvent('onreadystatechange', function(event) {
+			cookieChoices.showCookieConsentBar('This site uses cookies',
+			  'close message', 'learn more', 'cookies.php');
+		  });
+		}
+	  </script> -->
+	</head>
+<body>
+
+
+  <div class="container">
+  	<h1 style="text-align:center;">Google Map Distance Calculate</h1>
+  </div>
+
+	<div class="realContent">
+
+  <div id="map" style="width: 995px; height: 450px;text-align:center;">
+    <span style="color:Gray;">Loading map...</span>
+  </div>
+  <br/>
+  <div id="tabs" role="tabpanel">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="active"><a href="#locations" role="tab" data-toggle="tab">Locations</a></li>
+			<li><a href="#options" role="tab" data-toggle="tab">Routing options</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <div id="locations" role="tabpanel" class="tab-pane active">
+		    Type in an address or click on the map to add a location
+		    <div class="form-inline">
+			    <input type="text" id="location" class="form-control" style="width:80%;" />
+			    <input type="button" onclick="addLocation()" value="Add location" class="btn btn-primary" /><br/>
+			    <label>Latitude: <input type="text" id="lat" style="width:100px;" class="form-control" /></label>
+			    <label>Longitude: <input type="text" id="lng" style="width:100px;" class="form-control" /></label>
+			    <input type="button" onclick="addLatLng()" value="Add lat/lng" class="btn btn-primary"/>
+		    </div>
+		    <table id="waypointsLocations" style="width:100%;">
+			    <thead>
+				    <tr>
+					    <th style="text-align:left;">Location</th>
+					    <th style="text-align:left;">Latitude</th>
+					    <th style="text-align:left;">Longitude</th>
+					    <th style="text-align:left;"></th>
+					    <th style="text-align:left;"></th>
+					    <th style="text-align:left;"></th>
+				    </tr>
+			    </thead>
+			    <tbody>
+				    <tr>
+					    <td colspan="4">Added locations will appear here</td>
+				    </tr>
+			    </tbody>
+		    </table>
+        <input type="button" onclick="clearPolyLine()" value="Clear" class="btn btn-primary"/> Removes all locations from the map
+      </div>
+	    <div id="options" role="tabpanel" class="tab-pane">
+		    <table>
+			    <tr>
+				    <td>
+					    <input type="checkbox" id="optimise" />
+              <label for="optimise">Optimise route</label>
+				    </td>
+				    <td>If selected, the locations will be re-ordered to produce the shortest journey</td>
+			    </tr>
+			    <tr>
+				    <td>
+					    <input type="checkbox" id="roundTrip" />
+              <label for="roundTrip">Round trip</label>
+				    </td>
+				    <td>If selected, your first location will be used as the end point of the journey</td>
+			    </tr>
+			    <tr>
+				    <td>
+					    <label for="routeType">Travelling by</label>
+					    <select id="routeType" class="form-control">
+						    <option selected="selected">Driving</option>
+						    <option>Walking</option>
+						    <option>Public transport</option>
+						    <option>Cycling</option>
+					    </select>
+				    </td>
+				    <td></td>
+			    </tr>
+			    <tr>
+				    <td>
+					    <label for="directionUnits">Units</label>
+					    <select id="directionUnits" class="form-control">
+						    <option selected="selected">Kilometres</option>
+						    <option>Miles</option>
+					    </select>
+				    </td>
+				    <td></td>
+			    </tr>
+		    </table>
+      </div>
+    </div>
+  </div>
+  <br/>
+  <input type="button" onclick="getDirections()" value="Get directions" class="btn btn-primary"/> 
+
+  <br/><br/>
+  <span id="distance"></span> <span id="duration"></span>
+  <div id="directions">
+  </div>
+
+  <script src="js/waypoints.js?v=6" type="text/javascript"></script>
+
+ <br />
+ <br />
+	<script type="text/javascript">
+		var disqus_shortname = 'doogal';
+		/* * * DON'T EDIT BELOW THIS LINE * * */
+		(function() {
+			var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+			(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+		})();
+	</script>
+	<div id="crtoTextBanner"></div>
+	<script type='text/javascript' src="http://cas.criteo.com/delivery/ajs.php?zoneid=188687&containerid=crtoTextBanner" async="true"></script>
+ <br />
+ <br />
+ </div>
+	 <div class="Footer">
+		
+		<p style = "text-align:center;">
+			&copy; Core Concept. All Right Reserved-2015 
+		</p>
+		
+		
+		
+		
+	 
+	 </div>
+ </div>
+ </div>
+ </body>
+ </html>
